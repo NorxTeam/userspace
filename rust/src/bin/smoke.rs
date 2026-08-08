@@ -8,7 +8,7 @@ use alloc::vec::Vec;
 use core::alloc::Layout;
 use core::arch::asm;
 use core::panic::PanicInfo;
-use nordix_userspace::{startup_from_stack, syscall};
+use userspace::{startup_from_stack, syscall};
 
 #[panic_handler]
 fn panic(_info: &PanicInfo<'_>) -> ! {
@@ -40,8 +40,8 @@ pub extern "C" fn _start() -> ! {
         && syscall::yield_now().is_ok()
         && syscall::write(
             1,
-            b"[userspace] nordix-rust-write\n".as_ptr(),
-            b"[userspace] nordix-rust-write\n".len(),
+            b"[   OK   ] userspace: rust-write\n".as_ptr(),
+            b"[   OK   ] userspace: rust-write\n".len(),
         )
         .is_ok()
     {

@@ -5,7 +5,7 @@
 
 int main(void)
 {
-    static const char marker[] = "[userspace] nordix-c-write\n";
+    static const char marker[] = "[   OK   ] userspace: c-write\n";
     char buffer[8];
     atomic_uint_least64_t counter;
     mtx_t mutex = MTX_INIT;

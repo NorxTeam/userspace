@@ -17,10 +17,10 @@ The target-owned freestanding C/C++ runtime is under
 and syscall wrappers, atomics/threading subset, no-exception C++ ABI shim, and
 the small placement-new header subset. Build it with
 `python toolchain/scripts/build-runtime.py`; the resulting archives and ELF
-fixtures are staged in the separate Nordix rootfs under
-`norx-rootfs/usr/lib` and `norx-rootfs/tests/runtime`.
+fixtures are staged in the separate test rootfs under
+`test-rootfs/usr/lib` and `test-rootfs/tests/runtime`.
 
-Nordix package installation targets `/cfg` for configuration/appdata and
+Package installation targets `/cfg` for configuration/appdata and
 `/users` for user data. `/etc` and `/home` are compatibility paths during the
 porting period.
 

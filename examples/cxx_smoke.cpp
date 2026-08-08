@@ -12,7 +12,7 @@ extern "C" int norx_cxx_smoke()
 
 extern "C" int main()
 {
-    static const char marker[] = "[userspace] nordix-cxx-write\n";
+    static const char marker[] = "[   OK   ] userspace: cxx-write\n";
     alignas(Widget) unsigned char storage[sizeof(Widget)] = {};
     Widget *widget = new (storage) Widget{norx_cxx_smoke()};
     if (widget->value != 7) {

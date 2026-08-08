@@ -1,5 +1,5 @@
 [package]
-name = "nordix-userspace"
+name = "userspace"
 version = "0.1.0"
 edition = "2021"
 publish = false
@@ -8,5 +8,5 @@ publish = false
 path = "src/lib.rs"
 
 [[bin]]
-name = "nordix-userspace-smoke"
+name = "userspace-smoke"
 path = "src/bin/smoke.rs"

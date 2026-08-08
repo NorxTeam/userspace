@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "nordix-userspace"
+name = "userspace"
 version = "0.1.0"

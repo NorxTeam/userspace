@@ -1,4 +1,4 @@
-# Nordix Rust userspace API
+# Rust userspace API
 
 This `no_std` crate is the stable Rust-facing layer above the frozen syscall
 ABI. It owns register-correct syscall wrappers, startup stack parsing, and a

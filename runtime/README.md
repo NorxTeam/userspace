@@ -33,4 +33,4 @@ target-specific diagnostic until those kernel/ABI gates are opened.
 
 Run `python toolchain/scripts/build-runtime.py` to compile the runtime archive
 and C/C++ link fixtures for both supported architectures. Outputs and hashes
-are copied into `norx-rootfs/usr/lib` and `norx-rootfs/tests/runtime`.
+are copied into `test-rootfs/usr/lib` and `test-rootfs/tests/runtime`.
