@@ -1,0 +1,9 @@
+# Language and linker output
+/target/
+*.o
+*.a
+*.elf
+
+# Python cache from shared build scripts
+__pycache__/
+*.pyc
