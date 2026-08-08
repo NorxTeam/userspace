@@ -38,6 +38,12 @@ pub extern "C" fn _start() -> ! {
         && syscall::getpid().is_ok()
         && syscall::gettid().is_ok()
         && syscall::yield_now().is_ok()
+        && syscall::write(
+            1,
+            b"[userspace] nordix-rust-write\n".as_ptr(),
+            b"[userspace] nordix-rust-write\n".len(),
+        )
+        .is_ok()
     {
         0
     } else {

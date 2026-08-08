@@ -1,4 +1,5 @@
 #include <new>
+#include <unistd.h>
 
 struct Widget {
     int value;
@@ -11,7 +12,11 @@ extern "C" int norx_cxx_smoke()
 
 extern "C" int main()
 {
+    static const char marker[] = "[userspace] nordix-cxx-write\n";
     alignas(Widget) unsigned char storage[sizeof(Widget)] = {};
     Widget *widget = new (storage) Widget{norx_cxx_smoke()};
-    return widget->value == 7 ? 0 : 1;
+    if (widget->value != 7) {
+        return 1;
+    }
+    return write(1, marker, sizeof(marker) - 1) == (ssize_t)(sizeof(marker) - 1) ? 0 : 2;
 }

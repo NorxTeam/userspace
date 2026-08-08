@@ -1,9 +1,11 @@
 #include <stdatomic.h>
 #include <string.h>
 #include <threads.h>
+#include <unistd.h>
 
 int main(void)
 {
+    static const char marker[] = "[userspace] nordix-c-write\n";
     char buffer[8];
     atomic_uint_least64_t counter;
     mtx_t mutex = MTX_INIT;
@@ -24,6 +26,9 @@ int main(void)
     mtx_unlock(&mutex);
     if (!thrd_equal(thrd_current(), thrd_current())) {
         return 5;
+    }
+    if (write(1, marker, sizeof(marker) - 1) != (ssize_t)(sizeof(marker) - 1)) {
+        return 6;
     }
     return 0;
 }
