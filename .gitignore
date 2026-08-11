@@ -1,5 +1,7 @@
-# Language and linker output
-/target/
+# Local host cargo output
+/rust/target/
+
+# Generated userspace artifacts
 *.o
 *.a
 *.elf
