@@ -45,6 +45,8 @@ pub mod syscall {
         Link = 424,
         Stat = 425,
         ReadDir = 426,
+        Fsync = 427,
+        SyncPath = 428,
     }
 
     #[repr(C)]
@@ -154,6 +156,7 @@ pub mod syscall {
     pub const OPEN_CREATE: Word = 1 << 2;
     pub const OPEN_TRUNCATE: Word = 1 << 3;
     pub const OPEN_APPEND: Word = 1 << 4;
+    pub const OPEN_EXCLUSIVE: Word = 1 << 5;
     pub const STAT_REGULAR: u32 = 1;
     pub const STAT_DIRECTORY: u32 = 2;
     pub const NAME_MAX: usize = 31;
@@ -386,6 +389,20 @@ pub mod syscall {
             )
         })
         .map(|value| value as usize)
+    }
+
+    pub fn fsync(fd: Word) -> Result<(), Error> {
+        result(unsafe { raw6(Number::Fsync as Word, [fd, 0, 0, 0, 0, 0]) }).map(|_| ())
+    }
+
+    pub fn sync_path(path: *const u8, length: usize) -> Result<(), Error> {
+        result(unsafe {
+            raw6(
+                Number::SyncPath as Word,
+                [path as Word, length as Word, 0, 0, 0, 0],
+            )
+        })
+        .map(|_| ())
     }
 
     pub fn pipe(fds: *mut PipeFds, flags: Word) -> Result<(), Error> {

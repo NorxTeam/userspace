@@ -43,6 +43,8 @@ enum norx_syscall_number {
     NORX_SYS_LINK = 424,
     NORX_SYS_STAT = 425,
     NORX_SYS_READ_DIR = 426,
+    NORX_SYS_FSYNC = 427,
+    NORX_SYS_SYNC_PATH = 428,
 };
 
 enum norx_errno {
@@ -75,6 +77,7 @@ enum norx_errno {
 #define NORX_OPEN_CREATE (1ull << 2)
 #define NORX_OPEN_TRUNCATE (1ull << 3)
 #define NORX_OPEN_APPEND (1ull << 4)
+#define NORX_OPEN_EXCLUSIVE (1ull << 5)
 #define NORX_PIPE_NONBLOCK (1ull << 0)
 #define NORX_SPAWN_NEW_PROCESS_GROUP (1ull << 0)
 #define NORX_SPAWN_FOREGROUND (1ull << 1)
@@ -361,6 +364,16 @@ static inline norx_word_t norx_read_dir(
     return norx_syscall4(
         NORX_SYS_READ_DIR, (norx_pointer_t)(uintptr_t)path, length,
         (norx_pointer_t)(uintptr_t)output, capacity);
+}
+
+static inline norx_word_t norx_fsync(norx_word_t fd)
+{
+    return norx_syscall1(NORX_SYS_FSYNC, fd);
+}
+
+static inline norx_word_t norx_sync_path(const char *path, norx_word_t length)
+{
+    return norx_syscall2(NORX_SYS_SYNC_PATH, (norx_pointer_t)(uintptr_t)path, length);
 }
 
 static inline norx_word_t norx_pipe(norx_pipe_fds_t *fds, norx_word_t flags)
