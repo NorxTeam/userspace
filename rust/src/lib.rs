@@ -38,6 +38,7 @@ pub mod syscall {
         TtySetWindow = 409,
         SetSession = 410,
         GetCredentials = 411,
+        SpawnDelegated = 412,
         Mkdir = 420,
         Rmdir = 421,
         Unlink = 422,
@@ -79,6 +80,26 @@ pub mod syscall {
         pub stderr_fd: Word,
         pub process_group: Word,
         pub flags: Word,
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    pub struct DelegatedSpawnSpec {
+        pub path: Word,
+        pub path_length: Word,
+        pub argv: Word,
+        pub argc: Word,
+        pub environment: Word,
+        pub environment_count: Word,
+        pub stdin_fd: Word,
+        pub stdout_fd: Word,
+        pub stderr_fd: Word,
+        pub process_group: Word,
+        pub flags: Word,
+        pub target_uid: u32,
+        pub target_gid: u32,
+        pub reserved: u32,
+        pub capabilities: u64,
     }
 
     #[repr(C)]
@@ -164,6 +185,7 @@ pub mod syscall {
     pub const SPAWN_NEW_PROCESS_GROUP: Word = 1 << 0;
     pub const SPAWN_FOREGROUND: Word = 1 << 1;
     pub const SPAWN_INHERIT_CREDENTIALS: Word = 1 << 2;
+    pub const CAP_PRIVILEGE_DELEGATION: u64 = 1 << 7;
     pub const WAIT_NONBLOCK: Word = 1 << 0;
     pub const WAIT_EXITED: u32 = 1;
     pub const WAIT_SIGNALED: u32 = 2;
@@ -428,6 +450,15 @@ pub mod syscall {
 
     pub fn spawn2(spec: *const SpawnSpec) -> Result<Word, Error> {
         result(unsafe { raw6(Number::Spawn2 as Word, [spec as Word, 0, 0, 0, 0, 0]) })
+    }
+
+    pub fn spawn_delegated(spec: *const DelegatedSpawnSpec) -> Result<Word, Error> {
+        result(unsafe {
+            raw6(
+                Number::SpawnDelegated as Word,
+                [spec as Word, 0, 0, 0, 0, 0],
+            )
+        })
     }
 
     pub fn set_session(spec: *const SessionSpec) -> Result<(), Error> {

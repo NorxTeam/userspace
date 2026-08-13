@@ -36,6 +36,7 @@ enum norx_syscall_number {
     NORX_SYS_TTY_SET_WINDOW = 409,
     NORX_SYS_SET_SESSION = 410,
     NORX_SYS_GET_CREDENTIALS = 411,
+    NORX_SYS_SPAWN_DELEGATED = 412,
     NORX_SYS_MKDIR = 420,
     NORX_SYS_RMDIR = 421,
     NORX_SYS_UNLINK = 422,
@@ -82,6 +83,7 @@ enum norx_errno {
 #define NORX_SPAWN_NEW_PROCESS_GROUP (1ull << 0)
 #define NORX_SPAWN_FOREGROUND (1ull << 1)
 #define NORX_SPAWN_INHERIT_CREDENTIALS (1ull << 2)
+#define NORX_CAP_PRIVILEGE_DELEGATION (1ull << 7)
 #define NORX_WAIT_NONBLOCK (1ull << 0)
 
 enum norx_wait_kind {
@@ -128,6 +130,24 @@ typedef struct norx_spawn_spec {
     norx_word_t process_group;
     norx_word_t flags;
 } norx_spawn_spec_t;
+
+typedef struct norx_delegated_spawn_spec {
+    norx_pointer_t path;
+    norx_word_t path_length;
+    norx_pointer_t argv;
+    norx_word_t argc;
+    norx_pointer_t environment;
+    norx_word_t environment_count;
+    norx_word_t stdin_fd;
+    norx_word_t stdout_fd;
+    norx_word_t stderr_fd;
+    norx_word_t process_group;
+    norx_word_t flags;
+    uint32_t target_uid;
+    uint32_t target_gid;
+    uint32_t reserved;
+    uint64_t capabilities;
+} norx_delegated_spawn_spec_t;
 
 typedef struct norx_credentials {
     uint32_t real_uid;
@@ -396,6 +416,12 @@ static inline norx_word_t norx_wait_status(
 static inline norx_word_t norx_spawn2(const norx_spawn_spec_t *spec)
 {
     return norx_syscall1(NORX_SYS_SPAWN2, (norx_pointer_t)(uintptr_t)spec);
+}
+
+static inline norx_word_t norx_spawn_delegated(const norx_delegated_spawn_spec_t *spec)
+{
+    return norx_syscall1(
+        NORX_SYS_SPAWN_DELEGATED, (norx_pointer_t)(uintptr_t)spec);
 }
 
 static inline norx_word_t norx_set_session(const norx_session_spec_t *spec)
