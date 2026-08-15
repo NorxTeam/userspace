@@ -83,6 +83,9 @@ enum norx_errno {
 #define NORX_OPEN_TRUNCATE (1ull << 3)
 #define NORX_OPEN_APPEND (1ull << 4)
 #define NORX_OPEN_EXCLUSIVE (1ull << 5)
+#define NORX_SEEK_SET 0u
+#define NORX_SEEK_CUR 1u
+#define NORX_SEEK_END 2u
 #define NORX_PIPE_NONBLOCK (1ull << 0)
 #define NORX_F_GETFD 1u
 #define NORX_F_SETFD 2u
@@ -337,23 +340,23 @@ static inline norx_word_t norx_open(
     const char *path, norx_word_t length, norx_word_t flags, norx_word_t mode)
 {
     return norx_syscall4(
-        NORX_SYS_OPEN, (norx_pointer_t)(uintptr_t)path, length, flags, mode);
+        NORX_SYS_OPEN, (norx_pointer_t)path, length, flags, mode);
 }
 
 static inline norx_word_t norx_mkdir(const char *path, norx_word_t length, norx_word_t mode)
 {
     return norx_syscall3(
-        NORX_SYS_MKDIR, (norx_pointer_t)(uintptr_t)path, length, mode);
+        NORX_SYS_MKDIR, (norx_pointer_t)path, length, mode);
 }
 
 static inline norx_word_t norx_rmdir(const char *path, norx_word_t length)
 {
-    return norx_syscall2(NORX_SYS_RMDIR, (norx_pointer_t)(uintptr_t)path, length);
+    return norx_syscall2(NORX_SYS_RMDIR, (norx_pointer_t)path, length);
 }
 
 static inline norx_word_t norx_unlink(const char *path, norx_word_t length)
 {
-    return norx_syscall2(NORX_SYS_UNLINK, (norx_pointer_t)(uintptr_t)path, length);
+    return norx_syscall2(NORX_SYS_UNLINK, (norx_pointer_t)path, length);
 }
 
 static inline norx_word_t norx_rename(
@@ -361,9 +364,9 @@ static inline norx_word_t norx_rename(
 {
     return norx_syscall4(
         NORX_SYS_RENAME,
-        (norx_pointer_t)(uintptr_t)old_path,
+        (norx_pointer_t)old_path,
         old_length,
-        (norx_pointer_t)(uintptr_t)new_path,
+        (norx_pointer_t)new_path,
         new_length);
 }
 
@@ -372,9 +375,9 @@ static inline norx_word_t norx_link(
 {
     return norx_syscall4(
         NORX_SYS_LINK,
-        (norx_pointer_t)(uintptr_t)old_path,
+        (norx_pointer_t)old_path,
         old_length,
-        (norx_pointer_t)(uintptr_t)new_path,
+        (norx_pointer_t)new_path,
         new_length);
 }
 
@@ -382,16 +385,16 @@ static inline norx_word_t norx_stat(
     const char *path, norx_word_t length, norx_stat_t *output)
 {
     return norx_syscall3(
-        NORX_SYS_STAT, (norx_pointer_t)(uintptr_t)path, length,
-        (norx_pointer_t)(uintptr_t)output);
+        NORX_SYS_STAT, (norx_pointer_t)path, length,
+        (norx_pointer_t)output);
 }
 
 static inline norx_word_t norx_read_dir(
     const char *path, norx_word_t length, norx_dir_entry_t *output, norx_word_t capacity)
 {
     return norx_syscall4(
-        NORX_SYS_READ_DIR, (norx_pointer_t)(uintptr_t)path, length,
-        (norx_pointer_t)(uintptr_t)output, capacity);
+        NORX_SYS_READ_DIR, (norx_pointer_t)path, length,
+        (norx_pointer_t)output, capacity);
 }
 
 static inline norx_word_t norx_fsync(norx_word_t fd)
@@ -401,7 +404,7 @@ static inline norx_word_t norx_fsync(norx_word_t fd)
 
 static inline norx_word_t norx_sync_path(const char *path, norx_word_t length)
 {
-    return norx_syscall2(NORX_SYS_SYNC_PATH, (norx_pointer_t)(uintptr_t)path, length);
+    return norx_syscall2(NORX_SYS_SYNC_PATH, (norx_pointer_t)path, length);
 }
 
 static inline norx_word_t norx_lseek(norx_word_t fd, int64_t offset, norx_word_t whence)
@@ -411,7 +414,7 @@ static inline norx_word_t norx_lseek(norx_word_t fd, int64_t offset, norx_word_t
 
 static inline norx_word_t norx_fstat(norx_word_t fd, norx_stat_t *output)
 {
-    return norx_syscall2(NORX_SYS_FSTAT, fd, (norx_pointer_t)(uintptr_t)output);
+    return norx_syscall2(NORX_SYS_FSTAT, fd, (norx_pointer_t)output);
 }
 
 static inline norx_word_t norx_fchmod(norx_word_t fd, norx_word_t mode)
@@ -426,7 +429,7 @@ static inline norx_word_t norx_fcntl(norx_word_t fd, norx_word_t command, norx_w
 
 static inline norx_word_t norx_pipe(norx_pipe_fds_t *fds, norx_word_t flags)
 {
-    return norx_syscall2(NORX_SYS_PIPE, (norx_pointer_t)(uintptr_t)fds, flags);
+    return norx_syscall2(NORX_SYS_PIPE, (norx_pointer_t)fds, flags);
 }
 
 static inline norx_word_t norx_dup2(norx_word_t old_fd, norx_word_t new_fd)
@@ -438,12 +441,12 @@ static inline norx_word_t norx_wait_status(
     norx_word_t child, norx_wait_status_t *status, norx_word_t options)
 {
     return norx_syscall3(
-        NORX_SYS_WAIT_STATUS, child, (norx_pointer_t)(uintptr_t)status, options);
+        NORX_SYS_WAIT_STATUS, child, (norx_pointer_t)status, options);
 }
 
 static inline norx_word_t norx_spawn2(const norx_spawn_spec_t *spec)
 {
-    return norx_syscall1(NORX_SYS_SPAWN2, (norx_pointer_t)(uintptr_t)spec);
+    return norx_syscall1(NORX_SYS_SPAWN2, (norx_pointer_t)spec);
 }
 
 static inline norx_word_t norx_spawn2_with_flags(
@@ -457,17 +460,17 @@ static inline norx_word_t norx_spawn2_with_flags(
 static inline norx_word_t norx_spawn_delegated(const norx_delegated_spawn_spec_t *spec)
 {
     return norx_syscall1(
-        NORX_SYS_SPAWN_DELEGATED, (norx_pointer_t)(uintptr_t)spec);
+        NORX_SYS_SPAWN_DELEGATED, (norx_pointer_t)spec);
 }
 
 static inline norx_word_t norx_set_session(const norx_session_spec_t *spec)
 {
-    return norx_syscall1(NORX_SYS_SET_SESSION, (norx_pointer_t)(uintptr_t)spec);
+    return norx_syscall1(NORX_SYS_SET_SESSION, (norx_pointer_t)spec);
 }
 
 static inline norx_word_t norx_get_credentials(norx_credentials_t *output)
 {
-    return norx_syscall1(NORX_SYS_GET_CREDENTIALS, (norx_pointer_t)(uintptr_t)output);
+    return norx_syscall1(NORX_SYS_GET_CREDENTIALS, (norx_pointer_t)output);
 }
 
 static inline norx_word_t norx_setpgid(norx_word_t process, norx_word_t group)
@@ -498,7 +501,7 @@ static inline norx_word_t norx_tty_set_foreground(norx_word_t fd, norx_word_t gr
 static inline norx_word_t norx_tty_get_info(norx_word_t fd, norx_tty_info_t *info)
 {
     return norx_syscall3(
-        NORX_SYS_TTY_GET_INFO, fd, (norx_pointer_t)(uintptr_t)info, sizeof(*info));
+        NORX_SYS_TTY_GET_INFO, fd, (norx_pointer_t)info, sizeof(*info));
 }
 
 static inline norx_word_t norx_tty_set_window(
@@ -510,13 +513,13 @@ static inline norx_word_t norx_tty_set_window(
 static inline norx_word_t norx_write(
     norx_word_t fd, const void *buffer, norx_word_t length)
 {
-    return norx_syscall3(NORX_SYS_WRITE, fd, (norx_pointer_t)(uintptr_t)buffer, length);
+    return norx_syscall3(NORX_SYS_WRITE, fd, (norx_pointer_t)buffer, length);
 }
 
 static inline norx_word_t norx_read(
     norx_word_t fd, void *buffer, norx_word_t length)
 {
-    return norx_syscall3(NORX_SYS_READ, fd, (norx_pointer_t)(uintptr_t)buffer, length);
+    return norx_syscall3(NORX_SYS_READ, fd, (norx_pointer_t)buffer, length);
 }
 
 static inline void norx_exit(int status)
