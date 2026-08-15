@@ -46,6 +46,10 @@ enum norx_syscall_number {
     NORX_SYS_READ_DIR = 426,
     NORX_SYS_FSYNC = 427,
     NORX_SYS_SYNC_PATH = 428,
+    NORX_SYS_LSEEK = 429,
+    NORX_SYS_FSTAT = 430,
+    NORX_SYS_FCHMOD = 431,
+    NORX_SYS_FCNTL = 432,
 };
 
 enum norx_errno {
@@ -80,6 +84,9 @@ enum norx_errno {
 #define NORX_OPEN_APPEND (1ull << 4)
 #define NORX_OPEN_EXCLUSIVE (1ull << 5)
 #define NORX_PIPE_NONBLOCK (1ull << 0)
+#define NORX_F_GETFD 1u
+#define NORX_F_SETFD 2u
+#define NORX_FD_CLOEXEC (1ull << 0)
 #define NORX_SPAWN_NEW_PROCESS_GROUP (1ull << 0)
 #define NORX_SPAWN_FOREGROUND (1ull << 1)
 #define NORX_SPAWN_INHERIT_CREDENTIALS (1ull << 2)
@@ -394,6 +401,26 @@ static inline norx_word_t norx_fsync(norx_word_t fd)
 static inline norx_word_t norx_sync_path(const char *path, norx_word_t length)
 {
     return norx_syscall2(NORX_SYS_SYNC_PATH, (norx_pointer_t)(uintptr_t)path, length);
+}
+
+static inline norx_word_t norx_lseek(norx_word_t fd, int64_t offset, norx_word_t whence)
+{
+    return norx_syscall3(NORX_SYS_LSEEK, fd, (norx_word_t)offset, whence);
+}
+
+static inline norx_word_t norx_fstat(norx_word_t fd, norx_stat_t *output)
+{
+    return norx_syscall2(NORX_SYS_FSTAT, fd, (norx_pointer_t)(uintptr_t)output);
+}
+
+static inline norx_word_t norx_fchmod(norx_word_t fd, norx_word_t mode)
+{
+    return norx_syscall2(NORX_SYS_FCHMOD, fd, mode);
+}
+
+static inline norx_word_t norx_fcntl(norx_word_t fd, norx_word_t command, norx_word_t argument)
+{
+    return norx_syscall3(NORX_SYS_FCNTL, fd, command, argument);
 }
 
 static inline norx_word_t norx_pipe(norx_pipe_fds_t *fds, norx_word_t flags)
