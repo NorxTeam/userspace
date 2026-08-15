@@ -90,6 +90,7 @@ enum norx_errno {
 #define NORX_SPAWN_NEW_PROCESS_GROUP (1ull << 0)
 #define NORX_SPAWN_FOREGROUND (1ull << 1)
 #define NORX_SPAWN_INHERIT_CREDENTIALS (1ull << 2)
+#define NORX_SPAWN_INHERIT_OPEN_FDS (1ull << 3)
 #define NORX_CAP_PRIVILEGE_DELEGATION (1ull << 7)
 #define NORX_WAIT_NONBLOCK (1ull << 0)
 
@@ -443,6 +444,14 @@ static inline norx_word_t norx_wait_status(
 static inline norx_word_t norx_spawn2(const norx_spawn_spec_t *spec)
 {
     return norx_syscall1(NORX_SYS_SPAWN2, (norx_pointer_t)(uintptr_t)spec);
+}
+
+static inline norx_word_t norx_spawn2_with_flags(
+    const norx_spawn_spec_t *spec, norx_word_t flags)
+{
+    norx_spawn_spec_t request = *spec;
+    request.flags |= flags;
+    return norx_spawn2(&request);
 }
 
 static inline norx_word_t norx_spawn_delegated(const norx_delegated_spawn_spec_t *spec)
