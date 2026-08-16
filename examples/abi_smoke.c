@@ -15,6 +15,7 @@ _Static_assert(NORX_SYS_MKDIR == 420, "mkdir syscall number drifted");
 _Static_assert(NORX_SYS_RMDIR == 421, "rmdir syscall number drifted");
 _Static_assert(NORX_SYS_UNLINK == 422, "unlink syscall number drifted");
 _Static_assert(NORX_SYS_RENAME == 423, "rename syscall number drifted");
+_Static_assert(NORX_SYS_LINK == 424, "link syscall number drifted");
 _Static_assert(NORX_SYS_STAT == 425, "stat syscall number drifted");
 _Static_assert(NORX_SYS_READ_DIR == 426, "read_dir syscall number drifted");
 _Static_assert(NORX_SYS_FSYNC == 427, "fsync syscall number drifted");
@@ -100,6 +101,7 @@ typedef norx_word_t (*norx_mkdir_shape_t)(const char *, norx_word_t, norx_word_t
 typedef norx_word_t (*norx_rmdir_shape_t)(const char *, norx_word_t);
 typedef norx_word_t (*norx_unlink_shape_t)(const char *, norx_word_t);
 typedef norx_word_t (*norx_rename_shape_t)(const char *, norx_word_t, const char *, norx_word_t);
+typedef norx_word_t (*norx_link_shape_t)(const char *, norx_word_t, const char *, norx_word_t);
 typedef norx_word_t (*norx_stat_shape_t)(const char *, norx_word_t, norx_stat_t *);
 typedef norx_word_t (*norx_read_dir_shape_t)(
     const char *, norx_word_t, norx_dir_entry_t *, norx_word_t);
@@ -120,6 +122,7 @@ NORX_ASSERT_WRAPPER_SHAPE(norx_mkdir, norx_mkdir_shape_t);
 NORX_ASSERT_WRAPPER_SHAPE(norx_rmdir, norx_rmdir_shape_t);
 NORX_ASSERT_WRAPPER_SHAPE(norx_unlink, norx_unlink_shape_t);
 NORX_ASSERT_WRAPPER_SHAPE(norx_rename, norx_rename_shape_t);
+NORX_ASSERT_WRAPPER_SHAPE(norx_link, norx_link_shape_t);
 NORX_ASSERT_WRAPPER_SHAPE(norx_stat, norx_stat_shape_t);
 NORX_ASSERT_WRAPPER_SHAPE(norx_read_dir, norx_read_dir_shape_t);
 
@@ -137,6 +140,7 @@ _Static_assert(_Generic(norx_mkdir((const char *)0, 0, 0), norx_word_t: 1, defau
 _Static_assert(_Generic(norx_rmdir((const char *)0, 0), norx_word_t: 1, default: 0), "rmdir call shape");
 _Static_assert(_Generic(norx_unlink((const char *)0, 0), norx_word_t: 1, default: 0), "unlink call shape");
 _Static_assert(_Generic(norx_rename((const char *)0, 0, (const char *)0, 0), norx_word_t: 1, default: 0), "rename call shape");
+_Static_assert(_Generic(norx_link((const char *)0, 0, (const char *)0, 0), norx_word_t: 1, default: 0), "link call shape");
 _Static_assert(_Generic(norx_stat((const char *)0, 0, (norx_stat_t *)0), norx_word_t: 1, default: 0), "stat call shape");
 _Static_assert(_Generic(norx_read_dir((const char *)0, 0, (norx_dir_entry_t *)0, 0), norx_word_t: 1, default: 0), "read_dir call shape");
 
