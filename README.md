@@ -58,7 +58,8 @@ The static Rust userspace fixtures, including the target `nsh` ELF, are linked
 and staged by `toolchain/scripts/build-rust-userspace.py`. The interactive
 serial smoke remains an explicit QEMU gate. Bounded process-local
 filesystem-backed descriptors (`open`, `pipe`, `dup2`, and `close`) plus the
-serial TTY ownership calls are implemented; `spawn2` now has a bounded static
-image preparation path with cooperative user continuation, while arbitrary
-argv/environment transfer, blocking streams, and full process/job-control
-execution remain staged work.
+serial TTY ownership calls are implemented. A real external `spawn2` fixture
+now verifies inherited open descriptors, concurrent child transaction/wait
+behavior, and negative errno/bounds checks on both target architectures;
+arbitrary argv/environment transfer, blocking streams, and full
+process/job-control execution remain staged work.
