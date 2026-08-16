@@ -24,6 +24,7 @@ _Static_assert(NORX_SYS_LSEEK == 429, "lseek syscall number drifted");
 _Static_assert(NORX_SYS_FSTAT == 430, "fstat syscall number drifted");
 _Static_assert(NORX_SYS_FCHMOD == 431, "fchmod syscall number drifted");
 _Static_assert(NORX_SYS_FCNTL == 432, "fcntl syscall number drifted");
+_Static_assert(NORX_SYS_SPAWN2 == 401, "spawn2 syscall number drifted");
 
 _Static_assert(NORX_OPEN_READ == ((norx_word_t)1 << 0), "OPEN_READ drifted");
 _Static_assert(NORX_OPEN_WRITE == ((norx_word_t)1 << 1), "OPEN_WRITE drifted");
@@ -44,6 +45,19 @@ _Static_assert(NORX_F_SETFD == 2u, "F_SETFD drifted");
 _Static_assert(NORX_F_GETFD != NORX_F_SETFD, "fcntl commands must differ");
 _Static_assert(NORX_FD_CLOEXEC == ((norx_word_t)1 << 0), "FD_CLOEXEC drifted");
 _Static_assert((NORX_FD_CLOEXEC & ~((norx_word_t)1)) == 0, "FD flag mask drifted");
+_Static_assert((NORX_FD_CLOEXEC & ((norx_word_t)1 << 1)) == 0,
+    "unsupported descriptor flag boundary drifted");
+_Static_assert(NORX_SPAWN2_SUPPORTED_FLAGS == 0xfull, "spawn2 flag mask drifted");
+_Static_assert((NORX_SPAWN2_SUPPORTED_FLAGS & ((norx_word_t)1 << 4)) == 0,
+    "unsupported spawn flag boundary drifted");
+_Static_assert(NORX_SPAWN_MAX_PATH == 256u, "spawn path bound drifted");
+_Static_assert(NORX_SPAWN_MAX_ARGUMENTS == 16u, "spawn argv bound drifted");
+_Static_assert(NORX_SPAWN_MAX_ENVIRONMENT == 16u, "spawn environment bound drifted");
+_Static_assert(NORX_SPAWN_MAX_STRING_BYTES == 255u, "spawn string bound drifted");
+_Static_assert(NORX_SPAWN_STRING_SCAN_BYTES == 256u,
+    "spawn string scan boundary drifted");
+_Static_assert(NORX_SPAWN_STRING_SCAN_BYTES == NORX_SPAWN_MAX_STRING_BYTES + 1u,
+    "spawn string terminator boundary drifted");
 _Static_assert(NORX_STAT_REGULAR == 1u, "regular stat kind drifted");
 _Static_assert(NORX_STAT_DIRECTORY == 2u, "directory stat kind drifted");
 _Static_assert(NORX_STAT_REGULAR != NORX_STAT_DIRECTORY, "stat kinds must differ");
@@ -63,6 +77,7 @@ _Static_assert(NORX_EXDEV == 18, "EXDEV drifted");
 _Static_assert(NORX_EROFS == 30, "EROFS drifted");
 _Static_assert(NORX_ENOTSUP == 95, "ENOTSUP drifted");
 _Static_assert(NORX_EOVERFLOW == 75, "EOVERFLOW drifted");
+_Static_assert(NORX_E2BIG == 7, "E2BIG drifted");
 _Static_assert(NORX_ERROR_MAX == 4095u, "error range drifted");
 _Static_assert(
     ((norx_word_t)0 - (norx_word_t)NORX_EBADF) == UINT64_MAX - 8ull,
@@ -71,8 +86,32 @@ _Static_assert(
     ((norx_word_t)0 - (norx_word_t)NORX_EINVAL) == UINT64_MAX - 21ull,
     "negative errno encoding drifted");
 _Static_assert(
+    ((norx_word_t)0 - (norx_word_t)NORX_E2BIG) == UINT64_MAX - 6ull,
+    "negative E2BIG encoding drifted");
+_Static_assert(
     (norx_word_t)0 < UINT64_MAX - NORX_ERROR_MAX,
     "success value overlaps negative errno range");
+
+_Static_assert(sizeof(norx_spawn_spec_t) == 88, "spawn spec size drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, path) == 0, "spawn.path offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, path_length) == 8,
+    "spawn.path_length offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, argv) == 16, "spawn.argv offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, argc) == 24, "spawn.argc offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, environment) == 32,
+    "spawn.environment offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, environment_count) == 40,
+    "spawn.environment_count offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, stdin_fd) == 48,
+    "spawn.stdin_fd offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, stdout_fd) == 56,
+    "spawn.stdout_fd offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, stderr_fd) == 64,
+    "spawn.stderr_fd offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, process_group) == 72,
+    "spawn.process_group offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, flags) == 80,
+    "spawn.flags offset drifted");
 
 _Static_assert(sizeof(norx_stat_t) == 24, "norx_stat_t size drifted");
 _Static_assert(__builtin_offsetof(norx_stat_t, kind) == 0, "stat.kind offset drifted");
@@ -105,6 +144,9 @@ typedef norx_word_t (*norx_link_shape_t)(const char *, norx_word_t, const char *
 typedef norx_word_t (*norx_stat_shape_t)(const char *, norx_word_t, norx_stat_t *);
 typedef norx_word_t (*norx_read_dir_shape_t)(
     const char *, norx_word_t, norx_dir_entry_t *, norx_word_t);
+typedef norx_word_t (*norx_spawn2_shape_t)(const norx_spawn_spec_t *);
+typedef norx_word_t (*norx_spawn2_with_flags_shape_t)(
+    const norx_spawn_spec_t *, norx_word_t);
 
 #define NORX_ASSERT_WRAPPER_SHAPE(name, type) \
     _Static_assert(_Generic(&(name), type: 1, default: 0), #name " wrapper shape drifted")
@@ -125,6 +167,8 @@ NORX_ASSERT_WRAPPER_SHAPE(norx_rename, norx_rename_shape_t);
 NORX_ASSERT_WRAPPER_SHAPE(norx_link, norx_link_shape_t);
 NORX_ASSERT_WRAPPER_SHAPE(norx_stat, norx_stat_shape_t);
 NORX_ASSERT_WRAPPER_SHAPE(norx_read_dir, norx_read_dir_shape_t);
+NORX_ASSERT_WRAPPER_SHAPE(norx_spawn2, norx_spawn2_shape_t);
+NORX_ASSERT_WRAPPER_SHAPE(norx_spawn2_with_flags, norx_spawn2_with_flags_shape_t);
 
 /* Unevaluated calls check the argument count/types without issuing syscalls. */
 _Static_assert(_Generic(norx_open((const char *)0, 0, 0, 0), norx_word_t: 1, default: 0), "open call shape");
@@ -143,6 +187,8 @@ _Static_assert(_Generic(norx_rename((const char *)0, 0, (const char *)0, 0), nor
 _Static_assert(_Generic(norx_link((const char *)0, 0, (const char *)0, 0), norx_word_t: 1, default: 0), "link call shape");
 _Static_assert(_Generic(norx_stat((const char *)0, 0, (norx_stat_t *)0), norx_word_t: 1, default: 0), "stat call shape");
 _Static_assert(_Generic(norx_read_dir((const char *)0, 0, (norx_dir_entry_t *)0, 0), norx_word_t: 1, default: 0), "read_dir call shape");
+_Static_assert(_Generic(norx_spawn2((const norx_spawn_spec_t *)0), norx_word_t: 1, default: 0), "spawn2 call shape");
+_Static_assert(_Generic(norx_spawn2_with_flags((const norx_spawn_spec_t *)0, 0), norx_word_t: 1, default: 0), "spawn2_with_flags call shape");
 
 #undef NORX_ASSERT_WRAPPER_SHAPE
 
