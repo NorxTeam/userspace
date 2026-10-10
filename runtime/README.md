@@ -12,7 +12,7 @@ Implemented in this gate:
 - target headers for sizes, integer types, errno, strings, process I/O,
   time, and a small C11 atomic/threading surface;
 - `_start` plus stack parsing for the frozen `argc/argv/envp/auxv` startup
-  layout on x86_64 and AArch64;
+  layout on native AArch64;
 - `memcpy`, `memmove`, `memset`, `memcmp`, string functions, syscall-backed
   process wrappers, generation-tagged per-thread errno storage, and an
   explicit no-allocator `malloc`

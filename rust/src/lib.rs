@@ -106,8 +106,7 @@ pub mod syscall {
 
     pub const ABI_VERSION: u16 = 2;
     pub const SPAWN_SPEC_SIZE: u16 = core::mem::size_of::<SpawnSpec>() as u16;
-    pub const DELEGATED_SPAWN_SPEC_SIZE: u16 =
-        core::mem::size_of::<DelegatedSpawnSpec>() as u16;
+    pub const DELEGATED_SPAWN_SPEC_SIZE: u16 = core::mem::size_of::<DelegatedSpawnSpec>() as u16;
     pub const SESSION_SPEC_SIZE: u16 = core::mem::size_of::<SessionSpec>() as u16;
 
     #[repr(C)]
@@ -205,15 +204,10 @@ pub mod syscall {
 
     impl SessionCapability {
         pub fn acquire() -> Result<Self, Error> {
-            result(unsafe { raw6(Number::GetSessionCapability as Word, [0; 6]) })
-                .map(Self)
+            result(unsafe { raw6(Number::GetSessionCapability as Word, [0; 6]) }).map(Self)
         }
 
-        pub fn revalidate(
-            self,
-            required_capabilities: u64,
-            target_uid: u32,
-        ) -> Result<(), Error> {
+        pub fn revalidate(self, required_capabilities: u64, target_uid: u32) -> Result<(), Error> {
             result(unsafe {
                 raw6(
                     Number::ValidateSessionCapability as Word,
@@ -645,6 +639,24 @@ pub struct Startup {
     strings_end: usize,
 }
 
+impl Startup {
+    /// Returns a validated startup argument without its terminating NUL.
+    ///
+    /// # Safety
+    /// The startup block validated by `startup_from_stack` must remain mapped
+    /// and unchanged for the lifetime of the returned slice.
+    pub unsafe fn argument(&self, index: usize) -> Option<&[u8]> {
+        if index >= self.argc {
+            return None;
+        }
+        let pointer = read_word(self.argv, index) as usize;
+        let available = self.strings_end.checked_sub(pointer)?;
+        let bytes = core::slice::from_raw_parts(pointer as *const u8, available);
+        let length = bytes.iter().position(|byte| *byte == 0)?;
+        Some(&bytes[..length])
+    }
+}
+
 pub unsafe fn startup_from_stack(stack: *const usize) -> Result<Startup, StartupError> {
     if stack.is_null() {
         return Err(StartupError::NullStack);
@@ -706,10 +718,10 @@ pub unsafe fn startup_from_stack(stack: *const usize) -> Result<Startup, Startup
     let envp = bounded_array(base, header.envp_offset, envp_bytes, block_end)?;
     let auxv = bounded_array(base, header.auxv_offset, auxv_bytes, block_end)?;
 
-    let strings_offset = usize_from_startup_word(header.strings_offset)
-        .ok_or(StartupError::InvalidLayout)?;
-    let strings_size = usize_from_startup_word(header.strings_size)
-        .ok_or(StartupError::InvalidLayout)?;
+    let strings_offset =
+        usize_from_startup_word(header.strings_offset).ok_or(StartupError::InvalidLayout)?;
+    let strings_size =
+        usize_from_startup_word(header.strings_size).ok_or(StartupError::InvalidLayout)?;
     if strings_offset < auxv_offset + auxv_bytes
         || strings_offset > block_size
         || strings_size != block_size - strings_offset
@@ -887,7 +899,18 @@ mod tests {
         let mut words = [0u64; 24];
         let base = words.as_ptr() as usize;
         words[..12].copy_from_slice(&[
-            STARTUP_MAGIC, STARTUP_VERSION, 96, 170, 1, 0, 96, 112, 120, 3, 168, 2,
+            STARTUP_MAGIC,
+            STARTUP_VERSION,
+            96,
+            170,
+            1,
+            0,
+            96,
+            112,
+            120,
+            3,
+            168,
+            2,
         ]);
         words[12] = (base + 168) as u64;
         words[15..21].copy_from_slice(&[AT_PAGESZ, PAGE_SIZE, AT_ENTRY, 1, 0, 0]);
@@ -897,6 +920,9 @@ mod tests {
             startup_from_stack(block.as_ptr().cast()).map(|startup| (startup.argc, startup.envc))
         };
         assert_eq!(parse(&words), Ok((1, 0)));
+        let startup = unsafe { startup_from_stack(words.as_ptr().cast()).unwrap() };
+        assert_eq!(unsafe { startup.argument(0) }, Some(b"a".as_slice()));
+        assert_eq!(unsafe { startup.argument(1) }, None);
         for (index, value, expected) in [
             (0, 0, StartupError::InvalidHeader),
             (1, STARTUP_VERSION + 1, StartupError::UnsupportedVersion),
@@ -912,8 +938,14 @@ mod tests {
             words[index] = value;
             assert_eq!(parse(&words), Err(expected));
         }
-        assert!(matches!(unsafe { startup_from_stack(core::ptr::null()) }, Err(StartupError::NullStack)));
-        assert!(matches!(unsafe { startup_from_stack((base + 1) as *const usize) }, Err(StartupError::MisalignedStack)));
+        assert!(matches!(
+            unsafe { startup_from_stack(core::ptr::null()) },
+            Err(StartupError::NullStack)
+        ));
+        assert!(matches!(
+            unsafe { startup_from_stack((base + 1) as *const usize) },
+            Err(StartupError::MisalignedStack)
+        ));
     }
 
     #[test]
