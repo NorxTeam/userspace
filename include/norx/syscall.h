@@ -37,6 +37,8 @@ enum norx_syscall_number {
     NORX_SYS_SET_SESSION = 410,
     NORX_SYS_GET_CREDENTIALS = 411,
     NORX_SYS_SPAWN_DELEGATED = 412,
+    NORX_SYS_GET_SESSION_CAPABILITY = 413,
+    NORX_SYS_VALIDATE_SESSION_CAPABILITY = 414,
     NORX_SYS_MKDIR = 420,
     NORX_SYS_RMDIR = 421,
     NORX_SYS_UNLINK = 422,
@@ -50,6 +52,7 @@ enum norx_syscall_number {
     NORX_SYS_FSTAT = 430,
     NORX_SYS_FCHMOD = 431,
     NORX_SYS_FCNTL = 432,
+    NORX_SYS_NANOSLEEP = 435,
 };
 
 enum norx_errno {
@@ -104,6 +107,7 @@ enum norx_errno {
 #define NORX_SPAWN_MAX_STRING_BYTES 255u
 #define NORX_SPAWN_STRING_SCAN_BYTES 256u
 #define NORX_CAP_PRIVILEGE_DELEGATION (1ull << 7)
+#define NORX_SESSION_NO_TARGET_UID UINT32_MAX
 #define NORX_WAIT_NONBLOCK (1ull << 0)
 
 enum norx_wait_kind {
@@ -138,6 +142,9 @@ typedef struct norx_wait_status {
 } norx_wait_status_t;
 
 typedef struct norx_spawn_spec {
+    uint16_t abi_version;
+    uint16_t size;
+    uint32_t reserved0;
     norx_pointer_t path;
     norx_word_t path_length;
     norx_pointer_t argv;
@@ -149,9 +156,14 @@ typedef struct norx_spawn_spec {
     norx_word_t stderr_fd;
     norx_word_t process_group;
     norx_word_t flags;
+    uint32_t reserved;
+    uint32_t reserved1;
 } norx_spawn_spec_t;
 
 typedef struct norx_delegated_spawn_spec {
+    uint16_t abi_version;
+    uint16_t size;
+    uint32_t reserved0;
     norx_pointer_t path;
     norx_word_t path_length;
     norx_pointer_t argv;
@@ -166,6 +178,7 @@ typedef struct norx_delegated_spawn_spec {
     uint32_t target_uid;
     uint32_t target_gid;
     uint32_t reserved;
+    uint32_t reserved1;
     uint64_t capabilities;
 } norx_delegated_spawn_spec_t;
 
@@ -180,6 +193,9 @@ typedef struct norx_credentials {
 } norx_credentials_t;
 
 typedef struct norx_session_spec {
+    uint16_t abi_version;
+    uint16_t size;
+    uint32_t reserved0;
     norx_credentials_t credentials;
     norx_pointer_t cwd;
     norx_word_t cwd_length;
@@ -206,6 +222,11 @@ typedef struct norx_dir_entry {
     uint32_t name_length;
     uint8_t name[32];
 } norx_dir_entry_t;
+
+typedef struct norx_timespec {
+    int64_t seconds;
+    int64_t nanoseconds;
+} norx_timespec_t;
 
 #define NORX_STAT_REGULAR 1u
 #define NORX_STAT_DIRECTORY 2u
@@ -338,6 +359,16 @@ static inline norx_word_t norx_yield(void)
 static inline norx_word_t norx_sleep(norx_word_t duration)
 {
     return norx_syscall1(NORX_SYS_SLEEP, duration);
+}
+
+static inline norx_word_t norx_nanosleep(
+    int64_t seconds, int64_t nanoseconds, norx_timespec_t *remainder)
+{
+    return norx_syscall3(
+        NORX_SYS_NANOSLEEP,
+        (norx_word_t)seconds,
+        (norx_word_t)nanoseconds,
+        (norx_pointer_t)remainder);
 }
 
 static inline norx_word_t norx_close(norx_word_t fd)
@@ -480,6 +511,21 @@ static inline norx_word_t norx_set_session(const norx_session_spec_t *spec)
 static inline norx_word_t norx_get_credentials(norx_credentials_t *output)
 {
     return norx_syscall1(NORX_SYS_GET_CREDENTIALS, (norx_pointer_t)output);
+}
+
+static inline norx_word_t norx_get_session_capability(void)
+{
+    return norx_syscall0(NORX_SYS_GET_SESSION_CAPABILITY);
+}
+
+static inline norx_word_t norx_validate_session_capability(
+    norx_word_t capability, uint64_t required_capabilities, uint32_t target_uid)
+{
+    return norx_syscall3(
+        NORX_SYS_VALIDATE_SESSION_CAPABILITY,
+        capability,
+        required_capabilities,
+        target_uid);
 }
 
 static inline norx_word_t norx_setpgid(norx_word_t process, norx_word_t group)

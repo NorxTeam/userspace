@@ -64,6 +64,9 @@ static int parent_main(void)
     norx_pipe_fds_t parent_to_child;
     norx_pipe_fds_t child_to_parent;
     norx_spawn_spec_t spec = {
+        .abi_version = NORX_ABI_VERSION,
+        .size = sizeof(norx_spawn_spec_t),
+        .reserved0 = 0,
         .path = (norx_pointer_t)path,
         .path_length = sizeof(path) - 1,
         .argv = (norx_pointer_t)arguments,
@@ -75,6 +78,8 @@ static int parent_main(void)
         .stderr_fd = 2,
         .process_group = 0,
         .flags = NORX_SPAWN_INHERIT_OPEN_FDS,
+        .reserved = 0,
+        .reserved1 = 0,
     };
     norx_wait_status_t status;
     char input[sizeof(response) - 1];
@@ -135,6 +140,35 @@ static int parent_main(void)
     spec.path_length = 0;
     if (norx_spawn2(&spec) != neg_errno(NORX_EINVAL)) {
         return 43;
+    }
+    spec.path_length = sizeof(path) - 1;
+    spec.abi_version = NORX_ABI_VERSION + 1;
+    if (norx_spawn2(&spec) != neg_errno(NORX_EINVAL)) {
+        return 44;
+    }
+    spec.abi_version = NORX_ABI_VERSION;
+    spec.size = sizeof(norx_spawn_spec_t) - 1;
+    if (norx_spawn2(&spec) != neg_errno(NORX_EINVAL)) {
+        return 45;
+    }
+    spec.size = sizeof(norx_spawn_spec_t) + 1;
+    if (norx_spawn2(&spec) != neg_errno(NORX_EINVAL)) {
+        return 46;
+    }
+    spec.size = sizeof(norx_spawn_spec_t);
+    spec.reserved0 = 1;
+    if (norx_spawn2(&spec) != neg_errno(NORX_EINVAL)) {
+        return 47;
+    }
+    spec.reserved0 = 0;
+    spec.reserved = 1;
+    if (norx_spawn2(&spec) != neg_errno(NORX_EINVAL)) {
+        return 48;
+    }
+    spec.reserved = 0;
+    spec.reserved1 = 1;
+    if (norx_spawn2(&spec) != neg_errno(NORX_EINVAL)) {
+        return 49;
     }
     norx_close(parent_to_child.read);
     norx_close(parent_to_child.write);

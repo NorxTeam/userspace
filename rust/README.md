@@ -9,6 +9,10 @@ The staging package recipe is [`gamma.toml`](gamma.toml). It keeps the
 target-aware build description separate from Cargo metadata and from the
 installed manifest.
 
+The syscall-number enum is generated at build time from the canonical C ABI
+header at [`../include/norx/syscall.h`](../include/norx/syscall.h); do not
+maintain a second hand-written syscall-number list in this crate.
+
 The build gate uses the pinned nightly with `build-std=core,alloc` and
 `compiler_builtins` from the installed `rust-src`, then links a Rust ELF for
 both custom target specs. The smoke binary checks allocation, startup parsing,

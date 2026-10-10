@@ -5,6 +5,7 @@
 #define ECHILD 10
 #define EINTR 4
 #define EAGAIN 11
+#define EBUSY 16
 #define EFAULT 14
 #define EINVAL 22
 #define ENOSYS 38

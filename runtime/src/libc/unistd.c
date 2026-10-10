@@ -4,11 +4,34 @@
 #include <time.h>
 #include <unistd.h>
 
-static int norx_errno_storage;
+#define NORX_ERRNO_SLOTS 64u
+
+struct norx_errno_slot {
+    norx_word_t thread_id;
+    int value;
+};
+
+static struct norx_errno_slot norx_errno_slots[NORX_ERRNO_SLOTS];
+static int norx_errno_bootstrap;
 
 int *__errno_location(void)
 {
-    return &norx_errno_storage;
+    const norx_word_t thread_id = norx_gettid();
+    if (norx_is_error(thread_id)) {
+        return &norx_errno_bootstrap;
+    }
+
+    const unsigned int slot = (unsigned int)(thread_id & 0xffffu);
+    if (slot == 0 || slot > NORX_ERRNO_SLOTS) {
+        return &norx_errno_bootstrap;
+    }
+
+    struct norx_errno_slot *storage = &norx_errno_slots[slot - 1u];
+    if (storage->thread_id != thread_id) {
+        storage->thread_id = thread_id;
+        storage->value = 0;
+    }
+    return &storage->value;
 }
 
 static long long norx_result(norx_word_t result)
@@ -52,18 +75,25 @@ int sched_yield(void)
 
 unsigned int sleep(unsigned int seconds)
 {
-    return norx_is_error(norx_sleep(seconds)) ? seconds : 0;
+    const norx_word_t result = norx_sleep(seconds);
+    if (norx_is_error(result)) {
+        errno = norx_errno_value(result);
+        return seconds;
+    }
+    return 0;
 }
 
 int nanosleep(const struct timespec *request, struct timespec *remainder)
 {
-    if (request == (const struct timespec *)0 || request->tv_sec < 0 || request->tv_nsec < 0) {
+    if (request == (const struct timespec *)0) {
         errno = EINVAL;
         return -1;
     }
-    if (remainder != (struct timespec *)0) {
-        remainder->tv_sec = 0;
-        remainder->tv_nsec = 0;
+    const struct timespec requested = *request;
+    if (requested.tv_sec < 0 || requested.tv_nsec < 0 || requested.tv_nsec >= 1000000000LL) {
+        errno = EINVAL;
+        return -1;
     }
-    return (int)norx_result(norx_sleep((norx_word_t)request->tv_sec));
+    return (int)norx_result(norx_nanosleep(
+        requested.tv_sec, requested.tv_nsec, (norx_timespec_t *)remainder));
 }

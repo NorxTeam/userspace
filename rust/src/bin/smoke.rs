@@ -31,7 +31,10 @@ pub extern "C" fn _start() -> ! {
     unsafe {
         asm!("mov {}, sp", out(reg) stack, options(nomem, nostack, preserves_flags));
     }
-    let startup = unsafe { startup_from_stack(stack) };
+    let startup = match unsafe { startup_from_stack(stack) } {
+        Ok(startup) => startup,
+        Err(_) => syscall::exit(127),
+    };
     let mut values = Vec::new();
     values.extend_from_slice(&[startup.argc as u64, 2, 3]);
     let status = if values == [startup.argc as u64, 2, 3]

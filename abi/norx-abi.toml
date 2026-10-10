@@ -1,0 +1,852 @@
+schema = "norx-platform-abi"
+schema_version = 1
+abi_version = 2
+word_bits = 64
+pointer_bits = 64
+max_args = 6
+error_min = 1
+error_max = 4095
+scheduler_hz = 100
+
+[ownership]
+fd_kind = "process-owned descriptor"
+fd_owner = "calling process"
+fd_lifetime = "until close or process exit"
+fd_stale_error = "EBADF"
+fd_transfer = "dup2 or explicitly requested spawn2 inheritance"
+kernel_handle_rule = "raw VFS and pipe handles never cross the syscall boundary"
+
+[[limits]]
+name = "io"
+c_name = "NORX_MAX_IO"
+rust_name = "MAX_IO"
+value = 1024
+
+[[limits]]
+name = "path"
+c_name = "NORX_MAX_PATH"
+rust_name = "MAX_PATH"
+value = 256
+
+[[limits]]
+name = "spawn_arguments"
+c_name = "NORX_SPAWN_MAX_ARGUMENTS"
+rust_name = "MAX_SPAWN_ARGUMENTS"
+value = 16
+
+[[limits]]
+name = "spawn_environment"
+c_name = "NORX_SPAWN_MAX_ENVIRONMENT"
+rust_name = "MAX_SPAWN_ENVIRONMENT"
+value = 16
+
+[[limits]]
+name = "spawn_string_bytes"
+c_name = "NORX_SPAWN_MAX_STRING_BYTES"
+rust_name = "MAX_SPAWN_STRING_BYTES"
+value = 255
+
+[[limits]]
+name = "spawn_string_scan"
+c_name = "NORX_SPAWN_STRING_SCAN_BYTES"
+rust_name = "MAX_SPAWN_STRING"
+value = 256
+
+[[limits]]
+name = "name_max"
+c_name = "NORX_NAME_MAX"
+rust_name = "NAME_MAX"
+value = 31
+
+[[limits]]
+name = "max_dir_entries"
+c_name = "NORX_MAX_DIR_ENTRIES"
+rust_name = "MAX_DIR_ENTRIES"
+value = 16
+
+[[syscalls]]
+name = "read"
+c_name = "NORX_SYS_READ"
+rust_name = "Read"
+number = 0
+arguments = 3
+restart = "restartable"
+
+[[syscalls]]
+name = "write"
+c_name = "NORX_SYS_WRITE"
+rust_name = "Write"
+number = 1
+arguments = 3
+restart = "restartable"
+
+[[syscalls]]
+name = "close"
+c_name = "NORX_SYS_CLOSE"
+rust_name = "Close"
+number = 3
+arguments = 1
+restart = "never"
+
+[[syscalls]]
+name = "wait"
+c_name = "NORX_SYS_WAIT"
+rust_name = "Wait"
+number = 61
+arguments = 1
+restart = "restartable"
+
+[[syscalls]]
+name = "exit"
+c_name = "NORX_SYS_EXIT"
+rust_name = "Exit"
+number = 60
+arguments = 1
+restart = "never"
+
+[[syscalls]]
+name = "getpid"
+c_name = "NORX_SYS_GETPID"
+rust_name = "GetPid"
+number = 39
+arguments = 0
+restart = "never"
+
+[[syscalls]]
+name = "gettid"
+c_name = "NORX_SYS_GETTID"
+rust_name = "GetTid"
+number = 186
+arguments = 0
+restart = "never"
+
+[[syscalls]]
+name = "yield"
+c_name = "NORX_SYS_YIELD"
+rust_name = "Yield"
+number = 24
+arguments = 0
+restart = "never"
+
+[[syscalls]]
+name = "sleep"
+c_name = "NORX_SYS_SLEEP"
+rust_name = "Sleep"
+number = 35
+arguments = 1
+restart = "restartable"
+
+[[syscalls]]
+name = "spawn"
+c_name = "NORX_SYS_SPAWN"
+rust_name = "Spawn"
+number = 400
+arguments = 2
+restart = "restartable"
+
+[[syscalls]]
+name = "open"
+c_name = "NORX_SYS_OPEN"
+rust_name = "Open"
+number = 2
+arguments = 4
+restart = "restartable"
+
+[[syscalls]]
+name = "pipe"
+c_name = "NORX_SYS_PIPE"
+rust_name = "Pipe"
+number = 22
+arguments = 2
+restart = "restartable"
+
+[[syscalls]]
+name = "dup2"
+c_name = "NORX_SYS_DUP2"
+rust_name = "Dup2"
+number = 33
+arguments = 2
+restart = "never"
+
+[[syscalls]]
+name = "wait_status"
+c_name = "NORX_SYS_WAIT_STATUS"
+rust_name = "WaitStatus"
+number = 402
+arguments = 3
+restart = "restartable"
+
+[[syscalls]]
+name = "spawn2"
+c_name = "NORX_SYS_SPAWN2"
+rust_name = "Spawn2"
+number = 401
+arguments = 1
+restart = "restartable"
+
+[[syscalls]]
+name = "setpgid"
+c_name = "NORX_SYS_SETPGID"
+rust_name = "SetProcessGroup"
+number = 403
+arguments = 2
+restart = "never"
+
+[[syscalls]]
+name = "getpgid"
+c_name = "NORX_SYS_GETPGID"
+rust_name = "GetProcessGroup"
+number = 404
+arguments = 1
+restart = "never"
+
+[[syscalls]]
+name = "killpg"
+c_name = "NORX_SYS_KILLPG"
+rust_name = "KillProcessGroup"
+number = 405
+arguments = 2
+restart = "restartable"
+
+[[syscalls]]
+name = "tty_get_foreground"
+c_name = "NORX_SYS_TTY_GET_FOREGROUND"
+rust_name = "TtyGetForeground"
+number = 406
+arguments = 1
+restart = "never"
+
+[[syscalls]]
+name = "tty_set_foreground"
+c_name = "NORX_SYS_TTY_SET_FOREGROUND"
+rust_name = "TtySetForeground"
+number = 407
+arguments = 2
+restart = "never"
+
+[[syscalls]]
+name = "tty_get_info"
+c_name = "NORX_SYS_TTY_GET_INFO"
+rust_name = "TtyGetInfo"
+number = 408
+arguments = 2
+restart = "never"
+
+[[syscalls]]
+name = "tty_set_window"
+c_name = "NORX_SYS_TTY_SET_WINDOW"
+rust_name = "TtySetWindow"
+number = 409
+arguments = 3
+restart = "never"
+
+[[syscalls]]
+name = "set_session"
+c_name = "NORX_SYS_SET_SESSION"
+rust_name = "SetSession"
+number = 410
+arguments = 1
+restart = "never"
+
+[[syscalls]]
+name = "get_credentials"
+c_name = "NORX_SYS_GET_CREDENTIALS"
+rust_name = "GetCredentials"
+number = 411
+arguments = 1
+restart = "never"
+
+[[syscalls]]
+name = "spawn_delegated"
+c_name = "NORX_SYS_SPAWN_DELEGATED"
+rust_name = "SpawnDelegated"
+number = 412
+arguments = 1
+restart = "restartable"
+
+[[syscalls]]
+name = "mkdir"
+c_name = "NORX_SYS_MKDIR"
+rust_name = "Mkdir"
+number = 420
+arguments = 3
+restart = "never"
+
+[[syscalls]]
+name = "rmdir"
+c_name = "NORX_SYS_RMDIR"
+rust_name = "Rmdir"
+number = 421
+arguments = 2
+restart = "never"
+
+[[syscalls]]
+name = "unlink"
+c_name = "NORX_SYS_UNLINK"
+rust_name = "Unlink"
+number = 422
+arguments = 2
+restart = "never"
+
+[[syscalls]]
+name = "rename"
+c_name = "NORX_SYS_RENAME"
+rust_name = "Rename"
+number = 423
+arguments = 4
+restart = "never"
+
+[[syscalls]]
+name = "link"
+c_name = "NORX_SYS_LINK"
+rust_name = "Link"
+number = 424
+arguments = 4
+restart = "never"
+
+[[syscalls]]
+name = "stat"
+c_name = "NORX_SYS_STAT"
+rust_name = "Stat"
+number = 425
+arguments = 3
+restart = "never"
+
+[[syscalls]]
+name = "read_dir"
+c_name = "NORX_SYS_READ_DIR"
+rust_name = "ReadDir"
+number = 426
+arguments = 4
+restart = "never"
+
+[[syscalls]]
+name = "fsync"
+c_name = "NORX_SYS_FSYNC"
+rust_name = "Fsync"
+number = 427
+arguments = 1
+restart = "never"
+
+[[syscalls]]
+name = "sync_path"
+c_name = "NORX_SYS_SYNC_PATH"
+rust_name = "SyncPath"
+number = 428
+arguments = 2
+restart = "never"
+
+[[syscalls]]
+name = "lseek"
+c_name = "NORX_SYS_LSEEK"
+rust_name = "Lseek"
+number = 429
+arguments = 3
+restart = "never"
+
+[[syscalls]]
+name = "fstat"
+c_name = "NORX_SYS_FSTAT"
+rust_name = "Fstat"
+number = 430
+arguments = 2
+restart = "never"
+
+[[syscalls]]
+name = "fchmod"
+c_name = "NORX_SYS_FCHMOD"
+rust_name = "Fchmod"
+number = 431
+arguments = 2
+restart = "never"
+
+[[syscalls]]
+name = "fcntl"
+c_name = "NORX_SYS_FCNTL"
+rust_name = "Fcntl"
+number = 432
+arguments = 3
+restart = "never"
+
+[[errnos]]
+name = "EPERM"
+rust_name = "Eperm"
+value = 1
+
+[[errnos]]
+name = "ENOENT"
+rust_name = "Enoent"
+value = 2
+
+[[errnos]]
+name = "EBADF"
+rust_name = "Ebadf"
+value = 9
+
+[[errnos]]
+name = "ECHILD"
+rust_name = "Echild"
+value = 10
+
+[[errnos]]
+name = "EINTR"
+rust_name = "Eintr"
+value = 4
+
+[[errnos]]
+name = "EAGAIN"
+rust_name = "Eagain"
+value = 11
+
+[[errnos]]
+name = "EFAULT"
+rust_name = "Efault"
+value = 14
+
+[[errnos]]
+name = "EINVAL"
+rust_name = "Einval"
+value = 22
+
+[[errnos]]
+name = "ENOMEM"
+rust_name = "Enomem"
+value = 12
+
+[[errnos]]
+name = "ENOTTY"
+rust_name = "Enotty"
+value = 25
+
+[[errnos]]
+name = "EPIPE"
+rust_name = "Epipe"
+value = 32
+
+[[errnos]]
+name = "ENOSYS"
+rust_name = "Enosys"
+value = 38
+
+[[errnos]]
+name = "EOVERFLOW"
+rust_name = "Eoverflow"
+value = 75
+
+[[errnos]]
+name = "EEXIST"
+rust_name = "Eexist"
+value = 17
+
+[[errnos]]
+name = "ENOTDIR"
+rust_name = "Enotdir"
+value = 20
+
+[[errnos]]
+name = "EISDIR"
+rust_name = "Eisdir"
+value = 21
+
+[[errnos]]
+name = "ENOSPC"
+rust_name = "Enospc"
+value = 28
+
+[[errnos]]
+name = "ENOTEMPTY"
+rust_name = "Enotempty"
+value = 39
+
+[[errnos]]
+name = "ENOTSUP"
+rust_name = "Enotsup"
+value = 95
+
+[[errnos]]
+name = "ENAMETOOLONG"
+rust_name = "Enametoolong"
+value = 36
+
+[[errnos]]
+name = "EXDEV"
+rust_name = "Exdev"
+value = 18
+
+[[errnos]]
+name = "EROFS"
+rust_name = "Erofs"
+value = 30
+
+[[errnos]]
+name = "E2BIG"
+rust_name = "E2big"
+value = 7
+
+[[constants]]
+name = "OPEN_READ"
+c_name = "NORX_OPEN_READ"
+rust_type = "Word"
+c_type = "word"
+value = 1
+
+[[constants]]
+name = "OPEN_WRITE"
+c_name = "NORX_OPEN_WRITE"
+rust_type = "Word"
+c_type = "word"
+value = 2
+
+[[constants]]
+name = "OPEN_CREATE"
+c_name = "NORX_OPEN_CREATE"
+rust_type = "Word"
+c_type = "word"
+value = 4
+
+[[constants]]
+name = "OPEN_TRUNCATE"
+c_name = "NORX_OPEN_TRUNCATE"
+rust_type = "Word"
+c_type = "word"
+value = 8
+
+[[constants]]
+name = "OPEN_APPEND"
+c_name = "NORX_OPEN_APPEND"
+rust_type = "Word"
+c_type = "word"
+value = 16
+
+[[constants]]
+name = "OPEN_EXCLUSIVE"
+c_name = "NORX_OPEN_EXCLUSIVE"
+rust_type = "Word"
+c_type = "word"
+value = 32
+
+[[constants]]
+name = "SEEK_SET"
+c_name = "NORX_SEEK_SET"
+rust_type = "Word"
+c_type = "u32"
+value = 0
+
+[[constants]]
+name = "SEEK_CUR"
+c_name = "NORX_SEEK_CUR"
+rust_type = "Word"
+c_type = "u32"
+value = 1
+
+[[constants]]
+name = "SEEK_END"
+c_name = "NORX_SEEK_END"
+rust_type = "Word"
+c_type = "u32"
+value = 2
+
+[[constants]]
+name = "PIPE_NONBLOCK"
+c_name = "NORX_PIPE_NONBLOCK"
+rust_type = "Word"
+c_type = "word"
+value = 1
+
+[[constants]]
+name = "F_GETFD"
+c_name = "NORX_F_GETFD"
+rust_type = "Word"
+c_type = "u32"
+value = 1
+
+[[constants]]
+name = "F_SETFD"
+c_name = "NORX_F_SETFD"
+rust_type = "Word"
+c_type = "u32"
+value = 2
+
+[[constants]]
+name = "FD_CLOEXEC"
+c_name = "NORX_FD_CLOEXEC"
+rust_type = "Word"
+c_type = "word"
+value = 1
+
+[[constants]]
+name = "SPAWN_NEW_PROCESS_GROUP"
+c_name = "NORX_SPAWN_NEW_PROCESS_GROUP"
+rust_type = "Word"
+c_type = "word"
+value = 1
+
+[[constants]]
+name = "SPAWN_FOREGROUND"
+c_name = "NORX_SPAWN_FOREGROUND"
+rust_type = "Word"
+c_type = "word"
+value = 2
+
+[[constants]]
+name = "SPAWN_INHERIT_CREDENTIALS"
+c_name = "NORX_SPAWN_INHERIT_CREDENTIALS"
+rust_type = "Word"
+c_type = "word"
+value = 4
+
+[[constants]]
+name = "SPAWN_INHERIT_OPEN_FDS"
+c_name = "NORX_SPAWN_INHERIT_OPEN_FDS"
+rust_type = "Word"
+c_type = "word"
+value = 8
+
+[[constants]]
+name = "SPAWN2_SUPPORTED_FLAGS"
+c_name = "NORX_SPAWN2_SUPPORTED_FLAGS"
+rust_type = "Word"
+c_type = "word"
+value = 15
+
+[[constants]]
+name = "CAP_PRIVILEGE_DELEGATION"
+c_name = "NORX_CAP_PRIVILEGE_DELEGATION"
+rust_type = "Word"
+c_type = "word"
+value = 128
+
+[[constants]]
+name = "WAIT_NONBLOCK"
+c_name = "NORX_WAIT_NONBLOCK"
+rust_type = "Word"
+c_type = "word"
+value = 1
+
+[[constants]]
+name = "WAIT_EXITED"
+c_name = "NORX_WAIT_EXITED"
+rust_type = "u32"
+c_type = "u32"
+value = 1
+
+[[constants]]
+name = "WAIT_SIGNALED"
+c_name = "NORX_WAIT_SIGNALED"
+rust_type = "u32"
+c_type = "u32"
+value = 2
+
+[[constants]]
+name = "WAIT_STOPPED"
+c_name = "NORX_WAIT_STOPPED"
+rust_type = "u32"
+c_type = "u32"
+value = 3
+
+[[constants]]
+name = "WAIT_CONTINUED"
+c_name = "NORX_WAIT_CONTINUED"
+rust_type = "u32"
+c_type = "u32"
+value = 4
+
+[[constants]]
+name = "STAT_REGULAR"
+c_name = "NORX_STAT_REGULAR"
+rust_type = "u32"
+c_type = "u32"
+value = 1
+
+[[constants]]
+name = "STAT_DIRECTORY"
+c_name = "NORX_STAT_DIRECTORY"
+rust_type = "u32"
+c_type = "u32"
+value = 2
+
+[[constants]]
+name = "TTY_FLAG_AVAILABLE"
+c_name = "NORX_TTY_FLAG_AVAILABLE"
+rust_type = "u32"
+c_type = "u32"
+value = 1
+
+[[constants]]
+name = "TTY_FLAG_SERIAL"
+c_name = "NORX_TTY_FLAG_SERIAL"
+rust_type = "u32"
+c_type = "u32"
+value = 2
+
+[[structs]]
+name = "AbiHeader"
+c_name = "norx_abi_header_t"
+rust_name = "AbiHeader"
+fields = [
+  { name = "abi_version", type = "u16" },
+  { name = "size", type = "u16" },
+  { name = "reserved0", type = "u32" },
+]
+
+[[structs]]
+name = "Args"
+c_name = "norx_args_t"
+rust_name = "Args"
+fields = [
+  { name = "values", type = "array", element = "word", count = 6 },
+]
+
+[[structs]]
+name = "Timespec"
+c_name = "norx_timespec_t"
+rust_name = "Timespec"
+fields = [
+  { name = "seconds", type = "i64" },
+  { name = "nanoseconds", type = "i64" },
+]
+
+[[structs]]
+name = "PipeFds"
+c_name = "norx_pipe_fds_t"
+rust_name = "PipeFds"
+fields = [
+  { name = "read", type = "word" },
+  { name = "write", type = "word" },
+]
+
+[[structs]]
+name = "WaitStatus"
+c_name = "norx_wait_status_t"
+rust_name = "WaitStatus"
+fields = [
+  { name = "kind", type = "u32" },
+  { name = "code", type = "i32" },
+  { name = "signal", type = "u32" },
+  { name = "reserved", type = "u32" },
+]
+
+[[structs]]
+name = "Credentials"
+c_name = "norx_credentials_t"
+rust_name = "Credentials"
+fields = [
+  { name = "real_uid", type = "u32" },
+  { name = "effective_uid", type = "u32" },
+  { name = "saved_uid", type = "u32" },
+  { name = "real_gid", type = "u32" },
+  { name = "effective_gid", type = "u32" },
+  { name = "saved_gid", type = "u32" },
+  { name = "capabilities", type = "u64" },
+]
+
+[[structs]]
+name = "SpawnSpec"
+c_name = "norx_spawn_spec_t"
+rust_name = "SpawnSpec"
+versioned = true
+reserved_zero = ["reserved0", "reserved", "reserved1"]
+fields = [
+  { name = "abi_version", type = "u16" },
+  { name = "size", type = "u16" },
+  { name = "reserved0", type = "u32" },
+  { name = "path", type = "pointer" },
+  { name = "path_length", type = "word" },
+  { name = "argv", type = "pointer" },
+  { name = "argc", type = "word" },
+  { name = "environment", type = "pointer" },
+  { name = "environment_count", type = "word" },
+  { name = "stdin_fd", type = "word" },
+  { name = "stdout_fd", type = "word" },
+  { name = "stderr_fd", type = "word" },
+  { name = "process_group", type = "word" },
+  { name = "flags", type = "word" },
+  { name = "reserved", type = "u32" },
+  { name = "reserved1", type = "u32" },
+]
+
+[[structs]]
+name = "DelegatedSpawnSpec"
+c_name = "norx_delegated_spawn_spec_t"
+rust_name = "DelegatedSpawnSpec"
+versioned = true
+reserved_zero = ["reserved0", "reserved", "reserved1"]
+fields = [
+  { name = "abi_version", type = "u16" },
+  { name = "size", type = "u16" },
+  { name = "reserved0", type = "u32" },
+  { name = "path", type = "pointer" },
+  { name = "path_length", type = "word" },
+  { name = "argv", type = "pointer" },
+  { name = "argc", type = "word" },
+  { name = "environment", type = "pointer" },
+  { name = "environment_count", type = "word" },
+  { name = "stdin_fd", type = "word" },
+  { name = "stdout_fd", type = "word" },
+  { name = "stderr_fd", type = "word" },
+  { name = "process_group", type = "word" },
+  { name = "flags", type = "word" },
+  { name = "target_uid", type = "u32" },
+  { name = "target_gid", type = "u32" },
+  { name = "reserved", type = "u32" },
+  { name = "reserved1", type = "u32" },
+  { name = "capabilities", type = "u64" },
+]
+
+[[structs]]
+name = "SessionSpec"
+c_name = "norx_session_spec_t"
+rust_name = "SessionSpec"
+versioned = true
+reserved_zero = ["reserved0", "reserved"]
+fields = [
+  { name = "abi_version", type = "u16" },
+  { name = "size", type = "u16" },
+  { name = "reserved0", type = "u32" },
+  { name = "credentials", type = "Credentials" },
+  { name = "cwd", type = "pointer" },
+  { name = "cwd_length", type = "word" },
+  { name = "umask", type = "u32" },
+  { name = "reserved", type = "u32" },
+  { name = "max_fds", type = "u32" },
+  { name = "max_address_space_pages", type = "u32" },
+  { name = "max_cpu_ticks", type = "u64" },
+]
+
+[[structs]]
+name = "Stat"
+c_name = "norx_stat_t"
+rust_name = "Stat"
+fields = [
+  { name = "kind", type = "u32" },
+  { name = "mode", type = "u32" },
+  { name = "size", type = "u64" },
+  { name = "links", type = "u32" },
+  { name = "inode", type = "u32" },
+]
+
+[[structs]]
+name = "TtyInfo"
+c_name = "norx_tty_info_t"
+rust_name = "TtyInfo"
+fields = [
+  { name = "flags", type = "u32" },
+  { name = "controlling_process", type = "u32" },
+  { name = "foreground_group", type = "u32" },
+  { name = "columns", type = "u16" },
+  { name = "rows", type = "u16" },
+  { name = "reserved", type = "u32" },
+]
+
+[[structs]]
+name = "DirEntry"
+c_name = "norx_dir_entry_t"
+rust_name = "DirEntry"
+fields = [
+  { name = "kind", type = "u32" },
+  { name = "mode", type = "u32" },
+  { name = "size", type = "u64" },
+  { name = "links", type = "u32" },
+  { name = "name_length", type = "u32" },
+  { name = "name", type = "array", element = "u8", count = 32 },
+]

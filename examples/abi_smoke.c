@@ -92,26 +92,39 @@ _Static_assert(
     (norx_word_t)0 < UINT64_MAX - NORX_ERROR_MAX,
     "success value overlaps negative errno range");
 
-_Static_assert(sizeof(norx_spawn_spec_t) == 88, "spawn spec size drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, path) == 0, "spawn.path offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, path_length) == 8,
+_Static_assert(sizeof(norx_spawn_spec_t) == 104, "spawn spec size drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, abi_version) == 0,
+    "spawn.abi_version offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, size) == 2,
+    "spawn.size offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, reserved0) == 4,
+    "spawn.reserved0 offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, path) == 8, "spawn.path offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, path_length) == 16,
     "spawn.path_length offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, argv) == 16, "spawn.argv offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, argc) == 24, "spawn.argc offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, environment) == 32,
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, argv) == 24, "spawn.argv offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, argc) == 32, "spawn.argc offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, environment) == 40,
     "spawn.environment offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, environment_count) == 40,
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, environment_count) == 48,
     "spawn.environment_count offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, stdin_fd) == 48,
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, stdin_fd) == 56,
     "spawn.stdin_fd offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, stdout_fd) == 56,
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, stdout_fd) == 64,
     "spawn.stdout_fd offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, stderr_fd) == 64,
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, stderr_fd) == 72,
     "spawn.stderr_fd offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, process_group) == 72,
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, process_group) == 80,
     "spawn.process_group offset drifted");
-_Static_assert(__builtin_offsetof(norx_spawn_spec_t, flags) == 80,
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, flags) == 88,
     "spawn.flags offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, reserved) == 96,
+    "spawn.reserved offset drifted");
+_Static_assert(__builtin_offsetof(norx_spawn_spec_t, reserved1) == 100,
+    "spawn.reserved1 offset drifted");
+_Static_assert(sizeof(norx_delegated_spawn_spec_t) == 120,
+    "delegated spawn spec size drifted");
+_Static_assert(sizeof(norx_session_spec_t) == 80, "session spec size drifted");
 
 _Static_assert(sizeof(norx_stat_t) == 24, "norx_stat_t size drifted");
 _Static_assert(__builtin_offsetof(norx_stat_t, kind) == 0, "stat.kind offset drifted");

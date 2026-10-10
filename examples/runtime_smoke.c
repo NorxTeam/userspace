@@ -1,5 +1,7 @@
 #include <stdatomic.h>
+#include <errno.h>
 #include <string.h>
+#include <time.h>
 #include <threads.h>
 #include <unistd.h>
 
@@ -26,6 +28,15 @@ int main(void)
     mtx_unlock(&mutex);
     if (!thrd_equal(thrd_current(), thrd_current())) {
         return 5;
+    }
+    struct timespec invalid = {0, 1000000000LL};
+    if (nanosleep(&invalid, 0) != -1 || errno != EINVAL) {
+        return 7;
+    }
+    struct timespec zero = {0, 0};
+    struct timespec remainder = {1, 1};
+    if (nanosleep(&zero, &remainder) != 0 || remainder.tv_sec != 0 || remainder.tv_nsec != 0) {
+        return 8;
     }
     if (write(1, marker, sizeof(marker) - 1) != (ssize_t)(sizeof(marker) - 1)) {
         return 6;
